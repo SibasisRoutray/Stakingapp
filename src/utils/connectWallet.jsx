@@ -18,6 +18,10 @@ export const connectWallet = async()=>{
        })
        chainId= parseInt(chainIdHex,16)
        
+       if (chainId !== 11155111) { // Check if connected to Sepolia network
+        throw new Error("Please connect to the Sepolia network");
+      }
+  
        let selectedAccount =accounts[0];
        if(!selectedAccount){
         throw new Error("No ethereum accounts available")
