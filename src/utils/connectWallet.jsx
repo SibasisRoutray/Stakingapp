@@ -19,8 +19,40 @@ export const connectWallet = async()=>{
        chainId= parseInt(chainIdHex,16)
        
        if (chainId !== 11155111) { // Check if connected to Sepolia network
-        alert("Please connect to the Sepolia network");
-        
+        try { 
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: '0xaa36a7' }] // Sepolia network chainId in hexadecimal
+          });
+          chainId = 11155111;
+        } catch (switchError) {
+          // This error code indicates that the chain has not been added to MetaMask
+          if (switchError.code === 4902) {
+            try {
+              await window.ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [
+                  {
+                    chainId: '0xaa36a7', // Sepolia network chainId in hexadecimal
+                    chainName: 'Sepolia Test Network',
+                    nativeCurrency: {
+                      name: 'SepoliaETH',
+                      symbol: 'ETH',
+                      decimals: 18
+                    },
+                    rpcUrls: ['https://rpc.sepolia.org'],
+                    blockExplorerUrls: ['https://sepolia.etherscan.io']
+                  }
+                ]
+              });
+              chainId = 11155111;
+            } catch (addError) {
+              throw new Error("Failed to add Sepolia network to MetaMask");
+            }
+          } else {
+            throw new Error("Failed to switch to Sepolia network");
+          }
+        }
       }
   
        let selectedAccount =accounts[0];
